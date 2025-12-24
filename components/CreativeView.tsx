@@ -1,17 +1,32 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { 
     Music, Palette, Mic, Play, Pause, Upload, Sparkles, 
     Zap, Headphones, Clock, RefreshCw, Maximize2, 
     Code, MessageSquare, Video, Mic2, Grid, Brain, Layout, Image as ImageIcon, CheckCircle2,
-    Volume2, AlertCircle, StopCircle, BarChart3, X, Terminal, Cpu, Bug, Lightbulb
+    Volume2, AlertCircle, StopCircle, BarChart3, X, Terminal, Cpu, Bug, Lightbulb, ChevronLeft, Lock, FileText, Share2, Target, RefreshCcw
 } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { GeminiService } from '../services/geminiService';
-import { QualityEduAnalysis, QualityEducationCategory, ArtAnalysis, MusicReport, BoardAnalysis, CodeDebugHint } from '../types';
+import { QualityEduAnalysis, QualityEducationCategory, ArtAnalysis, MusicReport, BoardAnalysis, CodeDebugHint, WeeklyReportData, WeeklyAIInsight } from '../types';
+
+// Mock Data for Weekly Report
+const MOCK_WEEKLY_DATA: WeeklyReportData = {
+    music: { sessions: 3, duration: 90, rhythmScore: 85, rhythmImprovement: 5 },
+    art: { pages: 2, postureAlerts: 5, penAccuracy: 95 },
+    logic: { wins: 2, losses: 3, tacticalAnalysis: "Improved layout, weak endgame" },
+    language: { emotionScore: 70, speedIssue: true },
+    academic: { strongSubject: "Math", weakSubject: "English Vocabulary" }
+};
 
 export const CreativeView: React.FC = () => {
     const { t, language } = useLanguage();
+    const [viewMode, setViewMode] = useState<'hub' | 'detail'>('hub');
     const [activeTab, setActiveTab] = useState<QualityEducationCategory>('Music');
+    const [showReportModal, setShowReportModal] = useState(false);
+    const [weeklyReport, setWeeklyReport] = useState<WeeklyAIInsight | null>(null);
+    const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
     // --- SHARED STATE ---
     const [isSessionActive, setIsSessionActive] = useState(false);
@@ -48,7 +63,7 @@ export const CreativeView: React.FC = () => {
     // --- EFFECTS ---
     useEffect(() => {
         let interval: any;
-        if (isSessionActive && !isPausedForCoach) {
+        if (isSessionActive && !isPausedForCoach && viewMode === 'detail') {
             interval = setInterval(() => {
                 setSessionTimer(s => s + 1);
                 
@@ -80,11 +95,11 @@ export const CreativeView: React.FC = () => {
             setAudioLevels(new Array(20).fill(10));
         }
         return () => clearInterval(interval);
-    }, [isSessionActive, sessionTimer, activeTab, isPausedForCoach, rhythmOffset]);
+    }, [isSessionActive, sessionTimer, activeTab, isPausedForCoach, rhythmOffset, viewMode]);
 
     // Initialize Go Board
     useEffect(() => {
-        if (activeTab === 'Logic' && logicMode === 'board') {
+        if (activeTab === 'Logic' && logicMode === 'board' && viewMode === 'detail') {
             const size = 19;
             const newBoard = Array(size).fill(0).map(() => Array(size).fill(0));
             // Simulate some stones
@@ -94,7 +109,7 @@ export const CreativeView: React.FC = () => {
             }
             setGoBoard(newBoard);
         }
-    }, [activeTab, logicMode]);
+    }, [activeTab, logicMode, viewMode]);
 
     const handleStumble = async () => {
         setIsPausedForCoach(true);
@@ -175,6 +190,23 @@ export const CreativeView: React.FC = () => {
         setIsAnalyzing(false);
     };
 
+    // --- REPORT GENERATION ---
+    const handleGenerateReport = async () => {
+        setIsGeneratingReport(true);
+        const report = await GeminiService.generateWeeklyReport(MOCK_WEEKLY_DATA, "Commander", language);
+        setWeeklyReport(report);
+        setIsGeneratingReport(false);
+    };
+
+    const enterPlanet = (category: QualityEducationCategory) => {
+        setActiveTab(category);
+        setViewMode('detail');
+        // Reset sub-states if needed
+        if (category === 'Music') resetMusicMode();
+        if (category === 'Art') resetArtMode();
+        if (category === 'Logic') { setLogicMode('board'); setBoardAnalysis(null); }
+    };
+
     const resetArtMode = () => {
         setArtImage(null);
         setArtAnalysis(null);
@@ -205,47 +237,314 @@ export const CreativeView: React.FC = () => {
         }
     };
 
+    const getRadarData = () => [
+        { subject: t('creative.tab_music'), A: MOCK_WEEKLY_DATA.music.rhythmScore, fullMark: 100 },
+        { subject: t('creative.tab_art'), A: MOCK_WEEKLY_DATA.art.penAccuracy, fullMark: 100 },
+        { subject: t('creative.tab_logic'), A: 60, fullMark: 100 },
+        { subject: t('creative.tab_language'), A: MOCK_WEEKLY_DATA.language.emotionScore, fullMark: 100 },
+        { subject: t('cognitive.subjects.Math'), A: 95, fullMark: 100 },
+        { subject: t('cognitive.subjects.English'), A: 40, fullMark: 100 },
+    ];
+
+    // --- GALAXY HUB RENDER ---
+    if (viewMode === 'hub') {
+        return (
+            <div className="h-full w-full relative overflow-hidden bg-slate-950 rounded-2xl shadow-2xl flex flex-col">
+                {/* Starry Background */}
+                <div className="absolute inset-0 z-0">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-black"></div>
+                    <div className="absolute w-full h-full opacity-30" style={{backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '50px 50px'}}></div>
+                    <div className="absolute w-full h-full opacity-20" style={{backgroundImage: 'radial-gradient(white 1px, transparent 1px)', backgroundSize: '120px 120px', backgroundPosition: '20px 20px'}}></div>
+                </div>
+
+                {/* Top Bar: Energy & Title */}
+                <div className="relative z-10 flex justify-between items-center p-6">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-indigo-600 p-2 rounded-lg text-white">
+                            <Sparkles size={20} />
+                        </div>
+                        <h1 className="text-2xl font-bold text-white tracking-wide">{t('creative.hub_title')}</h1>
+                    </div>
+                    
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 bg-slate-900/80 backdrop-blur-md px-4 py-2 rounded-full border border-indigo-500/30">
+                            <Zap size={16} className="text-yellow-400 fill-current animate-pulse" />
+                            <span className="text-white font-mono font-bold">450</span>
+                            <span className="text-xs text-indigo-300 uppercase">{t('creative.energy_balance')}</span>
+                        </div>
+                        <button className="flex items-center gap-2 bg-gradient-to-r from-pink-600 to-purple-600 px-4 py-2 rounded-full text-white text-sm font-bold shadow-lg hover:scale-105 transition-transform">
+                            <Lock size={14} /> {t('creative.unlock_skin')}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Planets Grid */}
+                <div className="relative z-10 flex-1 grid grid-cols-2 lg:grid-cols-4 gap-8 p-8 items-center justify-center">
+                    
+                    {/* Planet: Music */}
+                    <div onClick={() => enterPlanet('Music')} className="group cursor-pointer flex flex-col items-center gap-6 transition-transform hover:scale-105">
+                        <div className="relative w-40 h-40">
+                            <div className="absolute inset-0 rounded-full bg-indigo-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <div className="relative w-full h-full rounded-full bg-gradient-to-br from-indigo-400 via-purple-600 to-slate-900 shadow-inner flex items-center justify-center border-2 border-indigo-300/30 overflow-hidden">
+                                <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+                                <Music size={48} className="text-white drop-shadow-lg" />
+                            </div>
+                            {/* Orbit Ring */}
+                            <div className="absolute inset-[-10px] rounded-full border border-white/10 w-[calc(100%+20px)] h-[calc(100%+20px)] animate-[spin_10s_linear_infinite]">
+                                <div className="w-2 h-2 bg-white rounded-full absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_10px_white]"></div>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-white font-bold text-lg mb-1">{t('creative.planet_music')}</h3>
+                            <div className="flex flex-col gap-1 text-xs text-indigo-200">
+                                <span>{t('creative.stat_week_time')}: <span className="font-mono text-white">120m</span></span>
+                                <span>{t('creative.stat_rhythm')}: <span className="font-mono text-emerald-400">85%</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Planet: Art */}
+                    <div onClick={() => enterPlanet('Art')} className="group cursor-pointer flex flex-col items-center gap-6 transition-transform hover:scale-105">
+                        <div className="relative w-40 h-40">
+                            <div className="absolute inset-0 rounded-full bg-pink-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <div className="relative w-full h-full rounded-full bg-gradient-to-br from-pink-400 via-rose-600 to-slate-900 shadow-inner flex items-center justify-center border-2 border-pink-300/30 overflow-hidden">
+                                <Palette size={48} className="text-white drop-shadow-lg" />
+                                {/* Mock Scrolling Timelapse */}
+                                <div className="absolute bottom-4 flex gap-1 opacity-50">
+                                    <div className="w-4 h-4 bg-white/50 rounded-sm"></div>
+                                    <div className="w-4 h-4 bg-white/30 rounded-sm"></div>
+                                    <div className="w-4 h-4 bg-white/10 rounded-sm"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-white font-bold text-lg mb-1">{t('creative.planet_art')}</h3>
+                            <div className="flex flex-col gap-1 text-xs text-pink-200">
+                                <span>{t('creative.stat_timelapse')}</span>
+                                <div className="flex justify-center gap-1 mt-1">
+                                    <div className="w-6 h-6 bg-slate-800 rounded border border-slate-600"></div>
+                                    <div className="w-6 h-6 bg-slate-800 rounded border border-slate-600"></div>
+                                    <div className="w-6 h-6 bg-slate-800 rounded border border-slate-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Planet: Logic */}
+                    <div onClick={() => enterPlanet('Logic')} className="group cursor-pointer flex flex-col items-center gap-6 transition-transform hover:scale-105">
+                        <div className="relative w-40 h-40">
+                            <div className="absolute inset-0 rounded-full bg-cyan-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <div className="relative w-full h-full rounded-full bg-gradient-to-br from-cyan-400 via-blue-600 to-slate-900 shadow-inner flex items-center justify-center border-2 border-cyan-300/30 overflow-hidden">
+                                <Grid size={48} className="text-white drop-shadow-lg" />
+                                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_45%,rgba(255,255,255,0.1)_50%,transparent_55%)] bg-[length:10px_10px]"></div>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-white font-bold text-lg mb-1">{t('creative.planet_logic')}</h3>
+                            <div className="flex flex-col gap-1 text-xs text-cyan-200">
+                                <span>{t('creative.stat_win_rate')}: <span className="font-mono text-emerald-400">60%</span></span>
+                                <span>{t('creative.stat_projects')}: <span className="font-mono text-white">3</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Planet: Language */}
+                    <div onClick={() => enterPlanet('Language')} className="group cursor-pointer flex flex-col items-center gap-6 transition-transform hover:scale-105">
+                        <div className="relative w-40 h-40">
+                            <div className="absolute inset-0 rounded-full bg-orange-500 blur-2xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                            <div className="relative w-full h-full rounded-full bg-gradient-to-br from-orange-400 via-amber-600 to-slate-900 shadow-inner flex items-center justify-center border-2 border-orange-300/30 overflow-hidden">
+                                <Mic2 size={48} className="text-white drop-shadow-lg" />
+                                <div className="absolute w-full h-full border-4 border-white/10 rounded-full scale-75"></div>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <h3 className="text-white font-bold text-lg mb-1">{t('creative.planet_language')}</h3>
+                            <div className="flex flex-col gap-1 text-xs text-orange-200">
+                                <span>{t('creative.stat_expressiveness')}: <span className="font-mono text-yellow-400">92/100</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                {/* Floating Report Button */}
+                <button 
+                    onClick={() => { setShowReportModal(true); if (!weeklyReport) handleGenerateReport(); }}
+                    className="absolute bottom-8 right-8 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white px-6 py-3 rounded-full font-bold shadow-2xl hover:scale-105 transition-transform flex items-center gap-2 z-20"
+                >
+                    <FileText size={20} />
+                    {t('creative.wr_btn')}
+                </button>
+
+                {/* Report Modal */}
+                {showReportModal && (
+                    <div className="absolute inset-0 z-50 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4">
+                        <div className="bg-white w-full max-w-4xl h-[90%] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-scale-in">
+                            {/* Header */}
+                            <div className="bg-slate-50 p-6 border-b border-slate-100 flex justify-between items-center">
+                                <div>
+                                    <h2 className="text-2xl font-black text-slate-800 tracking-tight">{t('creative.wr_title')}</h2>
+                                    <p className="text-slate-500 text-sm">{t('creative.wr_subtitle')}</p>
+                                </div>
+                                <button onClick={() => setShowReportModal(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                                    <X size={24} className="text-slate-500" />
+                                </button>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Left: Visuals */}
+                                <div className="flex flex-col items-center justify-center bg-slate-50 rounded-2xl p-6 border border-slate-100">
+                                    <div className="w-full h-64">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <RadarChart cx="50%" cy="50%" outerRadius="80%" data={getRadarData()}>
+                                                <PolarGrid stroke="#e2e8f0" />
+                                                <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748b', fontSize: 12, fontWeight: 'bold' }} />
+                                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                                                <Radar name="Skills" dataKey="A" stroke="#8b5cf6" strokeWidth={3} fill="#8b5cf6" fillOpacity={0.4} />
+                                            </RadarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 w-full mt-4">
+                                        <div className="bg-white p-3 rounded-xl border border-slate-200 text-center shadow-sm">
+                                            <span className="text-xs text-slate-400 uppercase font-bold">{t('creative.wr_total_time')}</span>
+                                            <span className="block text-xl font-black text-indigo-600">3.5h</span>
+                                        </div>
+                                        <div className="bg-white p-3 rounded-xl border border-slate-200 text-center shadow-sm">
+                                            <span className="text-xs text-slate-400 uppercase font-bold">{t('creative.wr_focus_avg')}</span>
+                                            <span className="block text-xl font-black text-emerald-500">88%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: AI Insight */}
+                                <div className="flex flex-col gap-6">
+                                    {isGeneratingReport ? (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-indigo-500 gap-4">
+                                            <RefreshCw size={48} className="animate-spin" />
+                                            <span className="font-bold animate-pulse">{t('creative.wr_generating')}</span>
+                                        </div>
+                                    ) : weeklyReport ? (
+                                        <div className="animate-fade-in space-y-6 flex-1 flex flex-col">
+                                            <div className="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl relative flex-1">
+                                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                    <Sparkles size={64} className="text-indigo-900" />
+                                                </div>
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <h3 className="text-indigo-900 font-bold flex items-center gap-2">
+                                                        <Zap size={18} className="text-yellow-500" /> {t('creative.wr_consultant')}
+                                                    </h3>
+                                                    <button 
+                                                        onClick={handleGenerateReport} 
+                                                        className="p-1.5 bg-white rounded-lg hover:bg-indigo-100 text-indigo-600 transition-colors shadow-sm"
+                                                        title={t('creative.wr_regenerate')}
+                                                    >
+                                                        <RefreshCcw size={16} />
+                                                    </button>
+                                                </div>
+                                                <p className="text-slate-700 leading-relaxed text-sm">
+                                                    {weeklyReport.summary}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-1">
+                                                    <Target size={14} /> {t('creative.wr_focus')}
+                                                </h4>
+                                                <div className="space-y-3">
+                                                    {weeklyReport.suggestions.map((s, i) => (
+                                                        <div key={i} className="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-xl shadow-sm">
+                                                            <div className="mt-0.5 bg-emerald-100 text-emerald-600 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                                                {i + 1}
+                                                            </div>
+                                                            <p className="text-sm text-slate-700 font-medium">{s}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center">
+                                            <button 
+                                                onClick={handleGenerateReport}
+                                                className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition-all flex items-center gap-2"
+                                            >
+                                                <Sparkles size={18} />
+                                                {t('creative.wr_btn')}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-3">
+                                <button className="px-6 py-2 rounded-xl text-slate-600 hover:bg-slate-200 font-bold text-sm transition-colors">
+                                    {t('creative.wr_archive')}
+                                </button>
+                                <button className="px-6 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 font-bold text-sm transition-colors flex items-center gap-2 shadow-lg">
+                                    <Share2 size={16} /> {t('creative.wr_share')}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    // --- DETAIL VIEW (Original Implementation) ---
     return (
         <div className="h-full flex flex-col p-1 gap-4">
             
-            {/* Tab Switcher */}
-            <div className="bg-white p-2 rounded-xl border border-slate-200 w-fit mx-auto flex space-x-2 shadow-sm overflow-x-auto">
+            {/* Navigation Header */}
+            <div className="bg-white p-2 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm">
                 <button 
-                    onClick={() => { setActiveTab('Music'); resetMusicMode(); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
-                        activeTab === 'Music' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
-                    }`}
+                    onClick={() => setViewMode('hub')}
+                    className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors font-bold text-sm"
                 >
-                    <Music size={16} />
-                    <span>{t('creative.tab_music')}</span>
+                    <ChevronLeft size={18} />
+                    {t('creative.back_to_galaxy')}
                 </button>
-                <button 
-                    onClick={() => { setActiveTab('Art'); resetArtMode(); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
-                        activeTab === 'Art' ? 'bg-pink-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                    <Palette size={16} />
-                    <span>{t('creative.tab_art')}</span>
-                </button>
-                <button 
-                    onClick={() => { setActiveTab('Logic'); resetArtMode(); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
-                        activeTab === 'Logic' ? 'bg-cyan-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                    <Brain size={16} />
-                    <span>{t('creative.tab_logic')}</span>
-                </button>
-                <button 
-                    onClick={() => { setActiveTab('Language'); resetArtMode(); }}
-                    className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
-                        activeTab === 'Language' ? 'bg-orange-500 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
-                    }`}
-                >
-                    <Mic2 size={16} />
-                    <span>{t('creative.tab_language')}</span>
-                </button>
+
+                <div className="flex space-x-2">
+                    <button 
+                        onClick={() => { setActiveTab('Music'); resetMusicMode(); }}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
+                            activeTab === 'Music' ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Music size={16} />
+                        <span className="hidden sm:inline">{t('creative.tab_music')}</span>
+                    </button>
+                    <button 
+                        onClick={() => { setActiveTab('Art'); resetArtMode(); }}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
+                            activeTab === 'Art' ? 'bg-pink-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Palette size={16} />
+                        <span className="hidden sm:inline">{t('creative.tab_art')}</span>
+                    </button>
+                    <button 
+                        onClick={() => { setActiveTab('Logic'); resetArtMode(); }}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
+                            activeTab === 'Logic' ? 'bg-cyan-600 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Brain size={16} />
+                        <span className="hidden sm:inline">{t('creative.tab_logic')}</span>
+                    </button>
+                    <button 
+                        onClick={() => { setActiveTab('Language'); resetArtMode(); }}
+                        className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center space-x-2 transition-all whitespace-nowrap ${
+                            activeTab === 'Language' ? 'bg-orange-500 text-white shadow' : 'text-slate-500 hover:bg-slate-50'
+                        }`}
+                    >
+                        <Mic2 size={16} />
+                        <span className="hidden sm:inline">{t('creative.tab_language')}</span>
+                    </button>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-y-auto">

@@ -10,7 +10,7 @@ export const translations = {
       relational: 'Harmony Guardian',
       archives: 'Archives',
       edu_manager: 'Edu Manager',
-      creative: 'Quality Education',
+      creative: 'Talent Hub',
       system_status: 'System Status',
       nominal: 'All Systems Nominal',
       app_name: 'SAV Edu',
@@ -422,7 +422,36 @@ export const translations = {
         logic_step: 'Step',
         logic_console: 'Console Output',
         logic_hint_title: 'Heuristic Debugging',
-        logic_hint_desc: 'I won\'t give you the answer, but check this:'
+        logic_hint_desc: 'I won\'t give you the answer, but check this:',
+
+        // Hub
+        hub_title: 'Talent Galaxy',
+        energy_balance: 'Creativity Energy',
+        unlock_skin: 'Unlock Skin',
+        back_to_galaxy: 'Back to Galaxy',
+        planet_music: 'Melody Planet',
+        planet_art: 'Canvas Planet',
+        planet_logic: 'Logic Planet',
+        planet_language: 'Expression Planet',
+        stat_week_time: 'This Week',
+        stat_rhythm: 'Rhythm',
+        stat_timelapse: 'Recent Works',
+        stat_win_rate: 'AI Win Rate',
+        stat_projects: 'Projects',
+        stat_expressiveness: 'Max Expression',
+
+        // Weekly Report
+        wr_btn: 'Weekly Growth Report',
+        wr_title: 'Growth Weekly',
+        wr_subtitle: 'Multiple Intelligence Analysis',
+        wr_generating: 'Consulting AI...',
+        wr_focus: 'Next Week Focus',
+        wr_total_time: 'Total Time',
+        wr_focus_avg: 'Focus Avg',
+        wr_archive: 'Archive Report',
+        wr_share: 'Share to Family',
+        wr_regenerate: 'Regenerate',
+        wr_consultant: 'AI Consultant',
     }
   },
   zh: {
@@ -846,7 +875,36 @@ export const translations = {
         logic_step: '步骤',
         logic_console: '控制台输出',
         logic_hint_title: '思考引导',
-        logic_hint_desc: '我不直接告诉你答案，但请检查这里：'
+        logic_hint_desc: '我不直接告诉你答案，但请检查这里：',
+
+        // Hub
+        hub_title: '素质教育星系',
+        energy_balance: '创造力能量',
+        unlock_skin: '解锁皮肤',
+        back_to_galaxy: '返回星系',
+        planet_music: '旋律星',
+        planet_art: '美学星',
+        planet_logic: '逻辑星',
+        planet_language: '表达星',
+        stat_week_time: '本周练习',
+        stat_rhythm: '节奏稳定',
+        stat_timelapse: '近期作品',
+        stat_win_rate: 'AI 胜率',
+        stat_projects: '完成项目',
+        stat_expressiveness: '表现力',
+
+        // Weekly Report
+        wr_btn: '生成多元智能成长周报',
+        wr_title: '多元智能成长周报',
+        wr_subtitle: 'AI 全维数据深度洞察',
+        wr_generating: '正在咨询 AI 顾问...',
+        wr_focus: '下周综合建议',
+        wr_total_time: '总练习时长',
+        wr_focus_avg: '平均专注度',
+        wr_archive: '存档周报',
+        wr_share: '分享给家人',
+        wr_regenerate: '重新生成',
+        wr_consultant: 'AI 成长顾问',
     }
   }
 };

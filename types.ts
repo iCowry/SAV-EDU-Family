@@ -1,32 +1,24 @@
 
 export enum Quadrant {
-  COGNITIVE = 'Cognitive',
-  PHYSICAL = 'Physical',
-  BIOLOGICAL = 'Biological',
-  RELATIONAL = 'Relational',
-  CREATIVE = 'Creative',
-  ARCHIVES = 'Archives',
-  EDU_MANAGER = 'EduManager'
-}
-
-export interface Metric {
-  label: string;
-  value: number;
-  max: number;
-  unit: string;
-  trend: 'up' | 'down' | 'stable';
+  COGNITIVE = 'cognitive',
+  PHYSICAL = 'physical',
+  BIOLOGICAL = 'biological',
+  RELATIONAL = 'relational',
+  CREATIVE = 'creative',
+  EDU_MANAGER = 'edu_manager',
+  ARCHIVES = 'archives'
 }
 
 export interface CapsuleStatus {
-  co2: number; // ppm
-  temp: number; // celsius
-  lux: number; // lumens
+  co2: number;
+  temp: number;
+  lux: number;
   noiseCancelling: boolean;
   privacyMode: boolean;
 }
 
 export interface LogicAnalysisResult {
-  score: number; // 0-100 logic strength
+  score: number;
   summary: string;
   weakness: string;
   suggestion: string;
@@ -42,39 +34,28 @@ export interface MealPlan {
   recommendation: string;
 }
 
-export interface ChatMessage {
-  id: string;
-  sender: 'user' | 'ai' | 'system';
-  text: string;
-  timestamp: Date;
-}
-
-// --- Academic Types ---
-export type Grade = 
-  | 'Grade 1' | 'Grade 2' | 'Grade 3' | 'Grade 4' | 'Grade 5' | 'Grade 6' 
-  | 'Grade 7' | 'Grade 8' | 'Grade 9' 
-  | 'Grade 10' | 'Grade 11' | 'Grade 12';
-
-export type Subject = 
-  | 'Math' | 'Physics' | 'Chemistry' | 'English' | 'Chinese' 
-  | 'Biology' | 'History' | 'Geography' | 'Politics' | 'Science';
-
-export type ErrorType = 'Foundational' | 'Misinterpretation' | 'Careless' | 'None';
-
 export interface KnowledgePoint {
-  topic: string; // The Domain/Category (e.g., "Algebra", "Mechanics")
-  subTopic: string; // The specific node (e.g., "Linear Equations")
+  topic: string;
+  subTopic: string;
   masteryScore: number;
   lastReviewed: string;
   decayRate: number;
   status: 'critical' | 'review' | 'mastered';
 }
 
+export type Grade = 
+  | 'Grade 1' | 'Grade 2' | 'Grade 3' | 'Grade 4' | 'Grade 5' | 'Grade 6'
+  | 'Grade 7' | 'Grade 8' | 'Grade 9' | 'Grade 10' | 'Grade 11' | 'Grade 12';
+
+export type Subject = 
+  | 'Math' | 'Physics' | 'Chemistry' | 'English' | 'Chinese' 
+  | 'Biology' | 'History' | 'Geography' | 'Politics' | 'Science';
+
 export interface AcademicAnalysis {
   subject: Subject;
   ocrText: string;
   errorAttribution: {
-    type: ErrorType;
+    type: string;
     explanation: string;
   };
   knowledgeMapping: KnowledgePoint[];
@@ -82,11 +63,11 @@ export interface AcademicAnalysis {
 
 export interface HomeworkTask {
   id: string;
-  subject: Subject;
+  subject: string;
   description: string;
   estimatedMin: number;
   status: 'pending' | 'completed';
-  priority: 'high' | 'medium' | 'low';
+  priority: 'low' | 'medium' | 'high';
 }
 
 export interface ExamEvent {
@@ -94,8 +75,8 @@ export interface ExamEvent {
   name: string;
   date: string;
   daysLeft: number;
-  type: 'Midterm' | 'Final' | 'Entrance' | 'Quiz';
-  predictedScore?: number;
+  type: string;
+  predictedScore: number;
 }
 
 export interface ExamScore {
@@ -105,97 +86,20 @@ export interface ExamScore {
   rank: number;
 }
 
-// --- Biological / Rhythm Types ---
-export interface FocusInterval {
-  hour: string;
-  focusScore: number; // 0-100
-  recommendation?: string; // e.g., "Math/Physics"
-}
-
-// --- Relational / Collaboration Types ---
-
-export type FlowState = 'deep_focus' | 'light_work' | 'idle';
-export type FacialExpression = 'Neutral' | 'Happy' | 'Focused' | 'Confused' | 'Frustrated';
+export type FacialExpression = 'Happy' | 'Frustrated' | 'Confused' | 'Focused' | 'Neutral';
 
 export interface EmotionalWeather {
-  hrv: number; // Heart Rate Variability (ms) - lower is stress
+  hrv: number;
   status: 'sunny' | 'cloudy' | 'stormy';
   detectedExpression: FacialExpression;
-  outburstProbability: number; // 0-100%
-  stressIndex: number; // 0-100 calculated stress
-}
-
-export interface ResilienceIntervention {
-  id: string;
-  timestamp: string;
-  trigger: string;
-  action: string;
-  script: string;
-}
-
-export interface AIButlerTask {
-  id: string;
-  timestamp: string;
-  type: 'correction' | 'reminder' | 'encouragement';
-  description: string;
-  savedParentNagging: boolean; // True if this replaced a parent intervention
-}
-
-export interface MissionContract {
-  title: string;
-  target: number;
-  current: number;
-  unit: string;
-  rewardSkin: string;
-  status: 'active' | 'completed';
-}
-
-export interface ParentTask {
-  id: string;
-  title: string;
-  status: 'active' | 'completed';
-  streakDays: number;
-}
-
-export interface WisdomInsight {
-  category: 'Learning Style' | 'Health' | 'Communication';
-  title: string;
-  content: string;
-  source: string;
-}
-
-export interface ChildSystemContext {
-  recentExamTrend: 'rising' | 'falling' | 'stable';
-  homeworkCompletionRate: number; // percentage
-  averageSleepDuration: number; // hours
-  recentStressLevel: 'high' | 'medium' | 'low';
-  physicalActivityLevel: 'high' | 'medium' | 'low';
-}
-
-export interface ParentingScript {
-  analysis: string; // Quantitative reasoning
-  step1: string; // Validation/Empathy
-  step2: string; // Curiosity/Inquiry
-  step3: string; // Action/Alliance
-}
-
-// --- Sports / Physical Types ---
-
-export type ExerciseType = 'JumpRope' | 'SitUps' | 'PullUps';
-
-export interface ExerciseSession {
-  type: ExerciseType;
-  reps: number;
-  durationSeconds: number;
-  formScore: number; // 0-100
-  calories: number;
-  heartRate: number;
+  outburstProbability: number;
+  stressIndex: number;
 }
 
 export interface GrowthData {
-  height: number; // cm
-  weight: number; // kg
-  growthRateCmPerMonth: number; // e.g., 1.5 cm/month
+  height: number;
+  weight: number;
+  growthRateCmPerMonth: number;
   bmi: number;
 }
 
@@ -205,15 +109,76 @@ export interface SportsAdvice {
   customDrill: string;
 }
 
+export interface ParentingScript {
+  analysis: string;
+  step1: string;
+  step2: string;
+  step3: string;
+}
+
+export interface ChildSystemContext {
+  recentExamTrend: 'rising' | 'falling' | 'stable';
+  homeworkCompletionRate: number;
+  averageSleepDuration: number;
+  recentStressLevel: 'low' | 'medium' | 'high';
+  physicalActivityLevel: 'low' | 'medium' | 'high';
+}
+
+export interface ArtAnalysis {
+  creativityScore: number;
+  techniqueScore: number;
+  compositionAnalysis: string;
+  colorUsage: string;
+  encouragement: string;
+}
+
+export type QualityEducationCategory = 'Music' | 'Art' | 'Logic' | 'Language';
+
+export interface QualityEduAnalysis {
+  category: QualityEducationCategory;
+  score: number;
+  feedback: string;
+  metrics: {
+    label: string;
+    value: string;
+    status: 'good' | 'average' | 'poor';
+  }[];
+}
+
+export interface MusicReport {
+  pitchStability: number;
+  rhythmAccuracy: number;
+  focusScore: number;
+  summary: string;
+  suggestion: string;
+}
+
+export interface BoardAnalysis {
+  winProbability: number;
+  criticalMove: string;
+  moveExplanation: string;
+  suggestedMoves: {
+    x: number;
+    y: number;
+    type: 'good' | 'bad';
+  }[];
+}
+
+export interface CodeDebugHint {
+  hint: string;
+  concept: string;
+  line?: number;
+}
+
 export interface DailyPlanTask {
   id: string;
   title: string;
-  status: 'completed' | 'pending';
+  status: 'pending' | 'completed';
   target: string;
 }
 
 export interface DailyGoal {
-  type: 'Steps' | 'Calories' | 'Distance' | 'Duration';
+  type: string;
   current: number;
   target: number;
   unit: string;
@@ -230,56 +195,66 @@ export interface GrowthRecord {
 export interface SportsRecord {
   month: string;
   item: string;
-  score: number; // raw value
-  grade: number; // 0-100 equivalent
-}
-
-// --- Quality Education / Creative Types ---
-export type QualityEducationCategory = 'Music' | 'Art' | 'Logic' | 'Language';
-
-export interface QualityEduAnalysis {
-  category: QualityEducationCategory;
   score: number;
-  feedback: string;
-  metrics: { 
-      label: string; 
-      value: string | number; 
-      status: 'good' | 'average' | 'poor' 
-  }[];
+  grade: number;
 }
 
-export interface ArtAnalysis {
-  creativityScore: number;
-  techniqueScore: number;
-  compositionAnalysis: string;
-  colorUsage: string;
-  encouragement: string;
+export interface FocusInterval {
+  hour: string;
+  focusScore: number;
+  recommendation?: string;
 }
 
-export interface MusicReport {
-  pitchStability: number; // 0-100
-  rhythmAccuracy: number; // 0-100
-  focusScore: number; // 0-100
-  summary: string;
-  suggestion: string;
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'ai';
+  text: string;
+  timestamp: Date;
 }
 
-// --- Logic Module Types ---
-export interface BoardAnalysis {
-  winProbability: number; // 0-100 for current player
-  criticalMove: string; // e.g., "Q16"
-  moveExplanation: string;
-  suggestedMoves: { x: number, y: number, type: 'good' | 'bad' }[];
-}
+export type FlowState = 'deep_focus' | 'idle';
 
-export interface CodeDebugHint {
-  line?: number;
-  hint: string; // Socratic question
-  concept: string; // e.g., "Syntax", "Logic"
-}
-
-export interface CodingProject {
-  title: string;
+export interface AIButlerTask {
+  id: string;
+  timestamp: string;
+  type: 'correction' | 'reminder' | 'encouragement';
   description: string;
-  steps: { id: number, text: string, done: boolean }[];
+  savedParentNagging: boolean;
+}
+
+export interface MissionContract {
+  title: string;
+  target: number;
+  current: number;
+  unit: string;
+  rewardSkin: string;
+  status: 'active' | 'completed';
+}
+
+export interface ResilienceIntervention {
+  id: string;
+  timestamp: string;
+  trigger: string;
+  action: string;
+  script: string;
+}
+
+export interface ParentTask {
+  id: string;
+  title: string;
+  status: 'active' | 'completed';
+  streakDays: number;
+}
+
+export interface WeeklyReportData {
+  music: { sessions: number; duration: number; rhythmScore: number; rhythmImprovement: number };
+  art: { pages: number; postureAlerts: number; penAccuracy: number };
+  logic: { wins: number; losses: number; tacticalAnalysis: string };
+  language: { emotionScore: number; speedIssue: boolean };
+  academic: { strongSubject: string; weakSubject: string };
+}
+
+export interface WeeklyAIInsight {
+  summary: string;
+  suggestions: string[];
 }

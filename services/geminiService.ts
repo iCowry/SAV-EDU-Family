@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { LogicAnalysisResult, MealPlan, AcademicAnalysis, EmotionalWeather, GrowthData, SportsAdvice, ParentingScript, ChildSystemContext, ArtAnalysis, QualityEducationCategory, QualityEduAnalysis, MusicReport, BoardAnalysis, CodeDebugHint } from "../types";
+import { LogicAnalysisResult, MealPlan, AcademicAnalysis, EmotionalWeather, GrowthData, SportsAdvice, ParentingScript, ChildSystemContext, ArtAnalysis, QualityEducationCategory, QualityEduAnalysis, MusicReport, BoardAnalysis, CodeDebugHint, WeeklyReportData, WeeklyAIInsight } from "../types";
 
 // Initialize Gemini
 // Note: In a production app, handle missing API key more gracefully.
@@ -771,6 +771,88 @@ export const GeminiService = {
           };
       } catch (error) {
           return { hint: "Try reading the error message again.", concept: "Debug" };
+      }
+  },
+
+  /**
+   * TALENT HUB: Generate Comprehensive Weekly Report
+   */
+  async generateWeeklyReport(data: WeeklyReportData, childName: string = "Junior", language: string = 'en'): Promise<WeeklyAIInsight> {
+      if (!process.env.API_KEY) {
+          // Provide realistic simulation data if API key is missing
+          if (language === 'zh') {
+              return {
+                  summary: "本周Junior在音乐和逻辑思维方面表现出色！钢琴练习的节奏稳定性提高了5%，展现出更强的乐感。围棋对弈中，虽然官子阶段仍有失误，但布局思路已见成效。需要注意的是英语单词记忆和书法坐姿，建议加强针对性练习。",
+                  suggestions: [
+                      "书法练习时，请提醒他关注方舱的坐姿提醒，保护脊柱。",
+                      "朗诵时，AI 演说家会引导他尝试放慢语速，让诗歌更有韵味。",
+                      "鉴于英语单词是目前的短板，我们可以试试在‘演说家舞台’用游戏的方式大声朗读单词，加深记忆。"
+                  ]
+              };
+          } else {
+              return {
+                  summary: "Junior showed steady improvement in Music and Logic this week! We noticed his rhythm in piano practice is getting much better (up 5%). His Go strategy in the opening game is stronger, though endgames need work. Attention is needed for English vocabulary retention.",
+                  suggestions: [
+                      "For calligraphy, please remind him to check the posture alerts to protect his spine.",
+                      "During recitation, encourage slowing down the pace to add more emotion.",
+                      "Try gamified reading in the 'Orator Stage' to boost English vocabulary retention."
+                  ]
+              };
+          }
+      }
+
+      try {
+          const prompt = `
+            Role: SAV Edu AI Growth Consultant (Warm, Professional, Encouraging).
+            Task: Generate a weekly growth report for a child named ${childName}.
+            
+            Input Data:
+            - Music: Piano, ${data.music.sessions} sessions, ${data.music.duration} mins total. Rhythm stability: ${data.music.rhythmScore}% (Improved by ${data.music.rhythmImprovement}%).
+            - Art (Calligraphy): ${data.art.pages} pages. Posture alerts: ${data.art.postureAlerts}. Pen accuracy: ${data.art.penAccuracy}%.
+            - Logic (Go/Weiqi): ${data.logic.wins} wins, ${data.logic.losses} losses. Analysis: ${data.logic.tacticalAnalysis}.
+            - Language (Recitation): Emotion score ${data.language.emotionScore}%. Speed issue: ${data.language.speedIssue ? "Yes, too fast" : "No"}.
+            - Academic: Strong in ${data.academic.strongSubject}, Weak in ${data.academic.weakSubject}.
+            
+            Output Language: ${language === 'zh' ? 'Chinese (Simplified)' : 'English'}
+            
+            Requirements:
+            1. Summary: A warm paragraph highlighting progress (Music & Logic focus) and mentioning areas for improvement gently.
+            2. Suggestions: 3 concrete, actionable tips for next week (mix of health, specific skill practice, and gamification).
+            
+            Output JSON:
+            - summary (string)
+            - suggestions (string array)
+          `;
+
+          const response = await ai.models.generateContent({
+              model: MODEL_NAME,
+              contents: prompt,
+              config: {
+                  responseMimeType: "application/json",
+                  responseSchema: {
+                      type: Type.OBJECT,
+                      properties: {
+                          summary: { type: Type.STRING },
+                          suggestions: { 
+                              type: Type.ARRAY,
+                              items: { type: Type.STRING }
+                          }
+                      }
+                  }
+              }
+          });
+
+          const result = JSON.parse(response.text || '{}');
+          return {
+              summary: result.summary || "Great progress this week!",
+              suggestions: result.suggestions || ["Keep practicing!"]
+          };
+
+      } catch (error) {
+          return {
+              summary: "Unable to generate report at this time.",
+              suggestions: []
+          };
       }
   }
 };
