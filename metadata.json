@@ -1,0 +1,8 @@
+{
+  "name": "SAV Edu - Growth OS",
+  "description": "A holistic growth operating system integrating cognitive analysis, physical health monitoring, nutritional management, and family harmony mediation, powered by the Smart Capsule hardware ecosystem.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
