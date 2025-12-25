@@ -775,6 +775,96 @@ export const GeminiService = {
   },
 
   /**
+   * LOGIC MODULE: Run Code Simulation
+   * Simulates code execution via AI to provide realistic output or errors.
+   */
+  async runCodeSimulation(code: string, codeLanguage: string): Promise<string> {
+      if (!process.env.API_KEY) {
+          // Provide specialized fallback for the default challenges
+          // Python
+          if (code.includes('check_guess')) {
+              return "File \"main.py\", line 5\n    if guess == target\n                     ^\nSyntaxError: expected ':'";
+          }
+          if (code.includes('check_guess') && code.includes('if guess == target:')) {
+              return "Target is 42, User guessed 42\nCorrect! You win."; // Fixed version
+          }
+          if (code.includes('n % 2 == 1')) { // Odd check logic bug
+              return "Finding even numbers...\n"; // Nothing printed because of logic error
+          }
+          if (code.includes('n % 2 == 0')) { // Fixed List Iteration
+              return "Finding even numbers...\nFound even: 2\nFound even: 4\nFound even: 6\nFound even: 8";
+          }
+          if (code.includes('reversed_s = s[::1]')) { // Forward slice bug
+              return "Original: SAV Edu\nReversed: SAV Edu"; // Didn't reverse
+          }
+          if (code.includes('reversed_s = s[::-1]')) { // Fixed reverse
+              return "Original: SAV Edu\nReversed: udE VAS";
+          }
+
+          // JS
+          if (code.includes('score = 100')) {
+              return "Calculating grade for: 85\nPerfect Score! (A+)"; // Logic error demo
+          }
+          if (code.includes('score === 100')) {
+              return "Calculating grade for: 85\nExcellent (A)"; // Fixed
+          }
+          if (code.includes('n < 10')) {
+              return "Original: [ 5, 12, 8, 130, 44 ]\nBig Numbers (>10): [ 5, 8 ]"; // Logic error
+          }
+          if (code.includes('n > 10')) {
+              return "Original: [ 5, 12, 8, 130, 44 ]\nBig Numbers (>10): [ 12, 130, 44 ]"; // Fixed
+          }
+          if (code.includes('user.nam')) {
+              return "User Name: undefined\nUser Role: Student";
+          }
+
+          // C++
+          if (code.includes('i <= 5')) {
+              return "Segmentation fault (core dumped) or Garbage Value: 32767"; // C++ out of bounds
+          }
+          if (code.includes('cout << ptr')) {
+              return "The score is: 0x7ffee4b890c"; // Pointer address
+          }
+          if (code.includes('cout << *ptr')) {
+              return "The score is: 95"; // Fixed pointer
+          }
+          if (code.includes('cout << "Welcome') && !code.includes('endl;')) {
+              return "error: expected ';' before 'int'";
+          }
+
+          return "Simulated Output: Please configure API_KEY for live execution.\n\n> Code executed successfully.";
+      }
+
+      try {
+          const prompt = `
+            Role: Code Interpreter & Compiler.
+            Task: Act as a runtime environment for ${codeLanguage}.
+            Code to Execute:
+            \`\`\`
+            ${code}
+            \`\`\`
+            
+            Instructions:
+            1. Analyze the code logic carefully.
+            2. If there are syntax errors, return the exact error message that a standard compiler/interpreter would produce.
+            3. If the code is valid, simulate the execution and return the standard output (stdout).
+            4. If the code involves randomness (like random.randint), generate a plausible random output.
+            
+            Output: ONLY the raw console output string. Do not add markdown formatting or explanations.
+          `;
+
+          const response = await ai.models.generateContent({
+              model: MODEL_NAME,
+              contents: prompt,
+          });
+
+          return response.text || "No output.";
+      } catch (error) {
+          return "Error: Execution timed out or failed.";
+      }
+  },
+
+  /**
    * TALENT HUB: Generate Comprehensive Weekly Report
    */
   async generateWeeklyReport(data: WeeklyReportData, childName: string = "Junior", language: string = 'en'): Promise<WeeklyAIInsight> {

@@ -5,7 +5,7 @@ import {
     Music, Palette, Mic, Play, Pause, Upload, Sparkles, 
     Zap, Headphones, Clock, RefreshCw, Maximize2, 
     Code, MessageSquare, Video, Mic2, Grid, Brain, Layout, Image as ImageIcon, CheckCircle2,
-    Volume2, AlertCircle, StopCircle, BarChart3, X, Terminal, Cpu, Bug, Lightbulb, ChevronLeft, Lock, FileText, Share2, Target, RefreshCcw
+    Volume2, AlertCircle, StopCircle, BarChart3, X, Terminal, Cpu, Bug, Lightbulb, ChevronLeft, Lock, FileText, Share2, Target, RefreshCcw, ChevronDown, Book, ArrowRight, ArrowLeft
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { GeminiService } from '../services/geminiService';
@@ -18,6 +18,175 @@ const MOCK_WEEKLY_DATA: WeeklyReportData = {
     logic: { wins: 2, losses: 3, tacticalAnalysis: "Improved layout, weak endgame" },
     language: { emotionScore: 70, speedIssue: true },
     academic: { strongSubject: "Math", weakSubject: "English Vocabulary" }
+};
+
+type CodeLanguage = 'python' | 'javascript' | 'cpp';
+
+interface CodingChallenge {
+    id: string;
+    title: string;
+    description: string;
+    hint: string;
+    initialCode: string;
+}
+
+const CODING_CHALLENGES: Record<CodeLanguage, CodingChallenge[]> = {
+    python: [
+        {
+            id: 'py_1',
+            title: 'Lv.1 Guess the Number',
+            description: 'Fix the syntax error in the conditional statement.',
+            hint: 'Python requires a colon at the end of if/else statements.',
+            initialCode: `def check_guess(target, guess):
+    print(f"Target is {target}, User guessed {guess}")
+    
+    # Intentional Error: Missing colon
+    if guess == target
+        return "Correct! You win."
+    elif guess < target:
+        return "Too low!"
+    else:
+        return "Too high!"
+
+print(check_guess(42, 42))`
+        },
+        {
+            id: 'py_2',
+            title: 'Lv.2 List Iteration',
+            description: 'Print only the even numbers from the list.',
+            hint: 'The modulo operator % returns the remainder. Even numbers have remainder 0 when divided by 2.',
+            initialCode: `numbers = [1, 2, 3, 4, 5, 6, 7, 8]
+print("Finding even numbers...")
+
+for n in numbers:
+    # Intentional Error: Logic is checking for odd numbers
+    if n % 2 == 1:
+        print(f"Found even: {n}")`
+        },
+        {
+            id: 'py_3',
+            title: 'Lv.3 String Reversal',
+            description: 'Reverse the string using slicing.',
+            hint: 'Slice syntax is [start:stop:step]. To go backwards, step should be negative.',
+            initialCode: `s = "SAV Edu"
+# Intentional Error: Step is positive 1 (forward)
+reversed_s = s[::1] 
+
+print(f"Original: {s}")
+print(f"Reversed: {reversed_s}")`
+        }
+    ],
+    javascript: [
+        {
+            id: 'js_1',
+            title: 'Lv.1 Grade Calculator',
+            description: 'Fix the logic bug in the comparison.',
+            hint: 'A single equals sign (=) assigns a value. Triple equals (===) compares values.',
+            initialCode: `function calculateGrade(score) {
+    console.log("Calculating grade for: " + score);
+
+    // Intentional Error: Assignment instead of comparison
+    if (score = 100) {
+        return "Perfect Score! (A+)";
+    } else if (score >= 90) {
+        return "Excellent (A)";
+    } else {
+        return "Keep practicing";
+    }
+}
+
+console.log(calculateGrade(85)); // Should not be Perfect Score`
+        },
+        {
+            id: 'js_2',
+            title: 'Lv.2 Array Filtering',
+            description: 'Filter the array to keep only numbers greater than 10.',
+            hint: 'The filter condition needs to return true for items you want to KEEP.',
+            initialCode: `const numbers = [5, 12, 8, 130, 44];
+
+// Intentional Error: Logic keeps numbers less than 10
+const bigNumbers = numbers.filter(n => n < 10);
+
+console.log("Original:", numbers);
+console.log("Big Numbers (>10):", bigNumbers);`
+        },
+        {
+            id: 'js_3',
+            title: 'Lv.3 Object Access',
+            description: 'Access the user\'s name property correctly.',
+            hint: 'Check for typos in property names. "nam" vs "name".',
+            initialCode: `const user = {
+    id: 101,
+    name: "Alex",
+    role: "Student"
+};
+
+// Intentional Error: Typo in property name
+console.log("User Name: " + user.nam);
+console.log("User Role: " + user.role);`
+        }
+    ],
+    cpp: [
+        {
+            id: 'cpp_1',
+            title: 'Lv.1 Array Loops',
+            description: 'Fix the loop boundary error (Index Out of Bounds).',
+            hint: 'Arrays are 0-indexed. If size is 5, valid indices are 0 to 4.',
+            initialCode: `#include <iostream>
+using namespace std;
+
+int main() {
+    int numbers[] = {10, 20, 30, 40, 50}; // Size is 5
+    int sum = 0;
+
+    // Intentional Error: Loop goes to <= 5 (index 5 is out of bounds)
+    for (int i = 0; i <= 5; i++) {
+        sum += numbers[i];
+    }
+
+    cout << "Sum of array: " << sum << endl;
+    return 0;
+}`
+        },
+        {
+            id: 'cpp_2',
+            title: 'Lv.2 Pointer Logic',
+            description: 'Print the value pointed to, not the memory address.',
+            hint: 'Use the dereference operator (*) to get the value stored at a pointer\'s address.',
+            initialCode: `#include <iostream>
+using namespace std;
+
+int main() {
+    int score = 95;
+    int* ptr = &score;
+
+    cout << "The score is: ";
+    // Intentional Error: Printing the pointer (address) instead of value
+    cout << ptr << endl; 
+    
+    return 0;
+}`
+        },
+        {
+            id: 'cpp_3',
+            title: 'Lv.3 Syntax Strictness',
+            description: 'Fix the syntax error to compile.',
+            hint: 'In C++, every statement must end with a semicolon.',
+            initialCode: `#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Welcome to Logic Lab" << endl
+    // Intentional Error: Missing semicolon above
+    
+    int x = 5;
+    int y = 10;
+    cout << "Result: " << x + y << endl;
+    
+    return 0;
+}`
+        }
+    ]
 };
 
 export const CreativeView: React.FC = () => {
@@ -53,9 +222,13 @@ export const CreativeView: React.FC = () => {
     const [goBoard, setGoBoard] = useState<number[][]>([]); // 19x19 grid
     const [boardAnalysis, setBoardAnalysis] = useState<BoardAnalysis | null>(null);
     // Code State
-    const [codeSnippet, setCodeSnippet] = useState(`def whack_mole():\n    mole_pos = random.randint(1, 9)\n    if hit_pos == mole_pos\n        print("Score!")`); // Intentional syntax error
+    const [codeLanguage, setCodeLanguage] = useState<CodeLanguage>('python');
+    const [currentChallengeIndex, setCurrentChallengeIndex] = useState(0);
+    const [codeSnippet, setCodeSnippet] = useState(CODING_CHALLENGES['python'][0].initialCode);
     const [consoleOutput, setConsoleOutput] = useState<string>('');
     const [debugHint, setDebugHint] = useState<CodeDebugHint | null>(null);
+
+    const currentChallenge = CODING_CHALLENGES[codeLanguage][currentChallengeIndex];
 
     // --- MOCK VISUALIZERS ---
     const [audioLevels, setAudioLevels] = useState<number[]>(new Array(20).fill(10));
@@ -178,14 +351,40 @@ export const CreativeView: React.FC = () => {
         setIsAnalyzing(false);
     };
 
-    const handleRunCode = async () => {
-        setConsoleOutput("SyntaxError: invalid syntax (line 3)");
+    const handleLanguageChange = (lang: CodeLanguage) => {
+        setCodeLanguage(lang);
+        setCurrentChallengeIndex(0); // Reset to first challenge of new language
+        setCodeSnippet(CODING_CHALLENGES[lang][0].initialCode);
+        setConsoleOutput('');
         setDebugHint(null);
+    };
+
+    const handleChallengeChange = (direction: 'next' | 'prev') => {
+        let newIndex = currentChallengeIndex;
+        if (direction === 'next') {
+            newIndex = (currentChallengeIndex + 1) % CODING_CHALLENGES[codeLanguage].length;
+        } else {
+            newIndex = (currentChallengeIndex - 1 + CODING_CHALLENGES[codeLanguage].length) % CODING_CHALLENGES[codeLanguage].length;
+        }
+        setCurrentChallengeIndex(newIndex);
+        setCodeSnippet(CODING_CHALLENGES[codeLanguage][newIndex].initialCode);
+        setConsoleOutput('');
+        setDebugHint(null);
+    };
+
+    const handleRunCode = async () => {
+        setConsoleOutput('Running...');
+        setIsAnalyzing(true);
+        const output = await GeminiService.runCodeSimulation(codeSnippet, codeLanguage);
+        setConsoleOutput(output);
+        setDebugHint(null);
+        setIsAnalyzing(false);
     };
 
     const handleDebugAssist = async () => {
         setIsAnalyzing(true);
-        const hint = await GeminiService.getCodeDebugHint(codeSnippet, "SyntaxError: invalid syntax", language);
+        // Use the challenge specific hint as fallback or context
+        const hint = await GeminiService.getCodeDebugHint(codeSnippet, consoleOutput, language);
         setDebugHint(hint);
         setIsAnalyzing(false);
     };
@@ -689,24 +888,56 @@ export const CreativeView: React.FC = () => {
                                     ) : (
                                         // CODE EDITOR VISUALIZER
                                         <div className="bg-[#1e1e1e] w-full h-full rounded-lg border border-slate-700 font-mono text-xs p-3 overflow-hidden flex flex-col">
-                                            <div className="flex gap-2 mb-2 pb-2 border-b border-slate-700">
+                                            <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-700">
                                                 <div className="w-3 h-3 rounded-full bg-red-500"></div>
                                                 <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                                                 <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                                <span className="ml-auto text-slate-500">main.py</span>
+                                                
+                                                {/* Challenge Navigation */}
+                                                <div className="flex items-center gap-1 ml-4 bg-slate-800 rounded px-1">
+                                                    <button 
+                                                        onClick={() => handleChallengeChange('prev')}
+                                                        className="text-slate-400 hover:text-white p-1"
+                                                    >
+                                                        <ArrowLeft size={12}/>
+                                                    </button>
+                                                    <span className="text-[10px] text-slate-300 font-mono px-1">
+                                                        {currentChallengeIndex + 1}/{CODING_CHALLENGES[codeLanguage].length}
+                                                    </span>
+                                                    <button 
+                                                        onClick={() => handleChallengeChange('next')}
+                                                        className="text-slate-400 hover:text-white p-1"
+                                                    >
+                                                        <ArrowRight size={12}/>
+                                                    </button>
+                                                </div>
+
+                                                {/* Language Selector */}
+                                                <div className="ml-auto relative group">
+                                                    <button className="flex items-center gap-1 text-slate-400 hover:text-white text-xs bg-slate-800 px-2 py-1 rounded border border-slate-700 uppercase font-bold">
+                                                        {codeLanguage}
+                                                        <ChevronDown size={10} />
+                                                    </button>
+                                                    {/* Dropdown */}
+                                                    <div className="absolute right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded shadow-lg hidden group-hover:block z-20">
+                                                        <div onClick={() => handleLanguageChange('python')} className="px-3 py-1 hover:bg-slate-700 cursor-pointer text-slate-300 text-[10px] uppercase font-bold">Python</div>
+                                                        <div onClick={() => handleLanguageChange('javascript')} className="px-3 py-1 hover:bg-slate-700 cursor-pointer text-slate-300 text-[10px] uppercase font-bold">JavaScript</div>
+                                                        <div onClick={() => handleLanguageChange('cpp')} className="px-3 py-1 hover:bg-slate-700 cursor-pointer text-slate-300 text-[10px] uppercase font-bold">C++</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <textarea 
-                                                className="flex-1 bg-transparent text-slate-300 resize-none outline-none"
+                                                className="flex-1 bg-transparent text-slate-300 resize-none outline-none font-mono leading-relaxed"
                                                 value={codeSnippet}
                                                 onChange={(e) => setCodeSnippet(e.target.value)}
                                                 spellCheck={false}
                                             />
                                             {consoleOutput && (
-                                                <div className="mt-2 pt-2 border-t border-slate-700 text-red-400">
+                                                <div className="mt-2 pt-2 border-t border-slate-700 text-slate-300">
                                                     <div className="flex items-center gap-1 mb-1 text-[10px] uppercase font-bold text-slate-500">
                                                         <Terminal size={10} /> {t('creative.logic_console')}
                                                     </div>
-                                                    {consoleOutput}
+                                                    <pre className="whitespace-pre-wrap text-[10px] font-mono">{consoleOutput}</pre>
                                                 </div>
                                             )}
                                         </div>
@@ -759,8 +990,9 @@ export const CreativeView: React.FC = () => {
                                         </button>
                                     ) : (
                                         <div className="flex gap-3">
-                                            <button onClick={handleRunCode} className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold flex items-center gap-2 hover:bg-green-700">
-                                                <Play size={16} /> {t('creative.logic_run_code')}
+                                            <button onClick={handleRunCode} disabled={isAnalyzing} className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold flex items-center gap-2 hover:bg-green-700 disabled:opacity-50">
+                                                {isAnalyzing ? <RefreshCw className="animate-spin" size={16} /> : <Play size={16} />} 
+                                                {t('creative.logic_run_code')}
                                             </button>
                                             {consoleOutput && (
                                                 <button onClick={handleDebugAssist} disabled={isAnalyzing} className="px-4 py-2 bg-purple-600 text-white rounded-lg font-bold flex items-center gap-2 hover:bg-purple-700">
@@ -929,18 +1161,14 @@ export const CreativeView: React.FC = () => {
                                     <div className="bg-slate-900 text-white p-4 rounded-xl shadow-lg border border-slate-700">
                                         <div className="flex items-center justify-between mb-2">
                                             <h4 className="text-xs font-bold text-cyan-400 uppercase flex items-center gap-1"><Cpu size={12}/> {t('creative.logic_mission')}</h4>
-                                            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Level 2</span>
+                                            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300 uppercase">{codeLanguage}</span>
                                         </div>
-                                        <p className="font-bold text-lg mb-4">{t('creative.logic_mission_title')}</p>
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-2 text-sm text-emerald-300 opacity-50 line-through">
-                                                <CheckCircle2 size={14}/> {t('creative.logic_step')} 1: Import Random
-                                            </div>
-                                            <div className="flex items-center gap-2 text-sm text-white font-medium animate-pulse">
-                                                <div className="w-3.5 h-3.5 rounded-full border-2 border-white/50"></div> {t('creative.logic_step')} 2: Define Whack Function
-                                            </div>
-                                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                                <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-700"></div> {t('creative.logic_step')} 3: Score Tracker
+                                        <p className="font-bold text-lg mb-2">{currentChallenge.title}</p>
+                                        <div className="space-y-3 text-sm">
+                                            <p className="text-slate-300 leading-snug">{currentChallenge.description}</p>
+                                            <div className="bg-slate-800/50 p-2 rounded border border-slate-700 flex items-start gap-2">
+                                                <Book size={14} className="text-emerald-400 mt-0.5 flex-shrink-0" />
+                                                <p className="text-xs text-slate-400 italic">Hint: {currentChallenge.hint}</p>
                                             </div>
                                         </div>
                                     </div>
